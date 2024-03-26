@@ -12,5 +12,5 @@ class Task(models.Model):
     user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     taskDate = models.DateField()
     taskName = models.CharField(max_length=300)
-    taskDescription = models.TextField()
+    taskDescription = models.TextField(max_length=1000)
     taskStatus = models.BooleanField(default=False)
