@@ -1,5 +1,5 @@
 import datetime
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from .models import CustomUser, Task
@@ -7,7 +7,7 @@ from .serializers import CustomUserSerializer, TaskSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -30,20 +30,20 @@ from django.contrib.auth import authenticate
 
 class RegisterView(APIView):
     def post(self, request):
-        userName = request.data.get('userName')
-        userEmail = request.data.get('userEmail')
-        userPassword = make_password(request.data.get('userPassword'))
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = make_password(request.data.get('password'))
 
-        if not userName or not userEmail or not userPassword:
+        if not username or not email or not password:
             return Response({'error': 'Please provide username, email, and password'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if CustomUser.objects.filter(userName=userName).exists():
+        if User.objects.filter(username=username).exists():
             return Response({'error': 'Username is already taken'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if CustomUser.objects.filter(userEmail=userEmail).exists():
+        if User.objects.filter(email=email).exists():
             return Response({'error': 'Email is already registered'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = CustomUser.objects.create(userName=userName, userEmail=userEmail, userPassword=userPassword)
+        user = User.objects.create(username=username, email=email, password=password)
         if user:
             return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
         else:
@@ -64,10 +64,10 @@ class RestrictedView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        userName = request.data.get('userName')
-        userPassword = request.data.get('userPassword')
-
-        user = authenticate(username=userName, password=userPassword)
+        username = request.data.get('username')
+        password = request.data.get('password')
+        print("userPassword", password)
+        user = authenticate(username=username, password=password)
         print("USER", user)
         if user is not None:
             refresh = RefreshToken.for_user(user)
@@ -76,17 +76,19 @@ class LoginView(APIView):
                 'access': str(refresh.access_token)
             })
         else:
-            user_instance = get_object_or_404(CustomUser, userName=userName)
-            print("LOGGER", user_instance)
-            if user_instance and check_password(userPassword, user_instance.userPassword):
-                # request.session['username'] = userName
-                refresh = RefreshToken.for_user(user_instance)
-                return JsonResponse({
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token)
-                })
-            else:
-                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        # else:
+        #     user_instance = get_object_or_404(CustomUser, userName=userName)
+        #     print("LOGGER", user_instance)
+        #     if user_instance and check_password(userPassword, user_instance.userPassword):
+        #         # request.session['username'] = userName
+        #         refresh = RefreshToken.for_user(user_instance)
+        #         return JsonResponse({
+        #             'refresh': str(refresh),
+        #             'access': str(refresh.access_token)
+        #         })
+        #     else:
+        #         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         # try:
         #     loginUser = CustomUser.objects.get(userEmail=userEmail)
@@ -99,7 +101,7 @@ class LoginView(APIView):
         # else:
         #     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-class CustomUserRetrieveUpdateDestroyAPIView(generics.ListCreateAPIView):
+class CustomUserCRUD(generics.ListCreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
 
