@@ -7,5 +7,5 @@ class CustomUserModelAdmin(admin.ModelAdmin):
 admin.site.register(CustomUser, CustomUserModelAdmin)
 
 class TaskModelAdmin(admin.ModelAdmin):
-    list_display = ["taskDate", "taskName", "taskDescription", "taskStatus"]
+    list_display = ["task_id", "taskDate", "taskName", "taskDescription", "taskStatus"]
 admin.site.register(Task, TaskModelAdmin)

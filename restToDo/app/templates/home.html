@@ -47,20 +47,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for task in addTask %}
+                                    {% for task in logedUserTask %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td>{{ task.date }}</td>
-                                        <td>{{ task.task }}</td>
-                                        <td>{{ task.description }}</td>
-                                        <td>
-                                            {% if task.completed %}
-                                            <span class="badge badge-success">Completed</span>
-                                            {% else %}
-                                            <a class="btn btn-danger" href="{% url 'completeTask' task.id %}">Complete</a>
-                                            {% endif %}
-                                            <a href="{% url 'delete' task.id %}" class="btn btn-danger">Delete</a>
-                                        </td>
+                                        <td>{{ task.taskDate }}</td>
+                                        <td>{{ task.taskName }}</td>
+                                        <td>{{ task.taskDescription }}</td>
+                                        <!-- taskcomplete -->
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -76,7 +69,7 @@
     <div id="addModal" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="{% url 'add' %}" method="post">
+                <form method="post">
                     {% csrf_token %}
                     <div class="modal-header">
                         <h4 class="modal-title">Add Task</h4>
@@ -89,11 +82,11 @@
                         </div> -->
                         <div class="form-group">
                             <label>Task Name</label>
-                            <input name="task" type="text" class="form-control" required>
+                            <input name="taskName" type="text" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label>Description</label>
-                            <textarea name="description" class="form-control" required></textarea>
+                            <textarea name="taskDescription" class="form-control" required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
