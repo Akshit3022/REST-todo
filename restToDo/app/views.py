@@ -1,5 +1,4 @@
 import datetime
-# from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect, render
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -17,6 +16,16 @@ import requests
 
 # admin
 # RARE0000
+
+# Apis:
+
+# register: http://127.0.0.1:8000/register/ [post]
+# login: http://127.0.0.1:8000/ [post]
+# view user: http://127.0.0.1:8000/users [get]
+# get tasks: http://127.0.0.1:8000/tasks/ [get]
+# add tasks: http://127.0.0.1:8000/tasks/ [post]
+# delete task: http://127.0.0.1:8000/tasks/4/ [delete]
+
 
 
 class RegisterView(APIView):
@@ -73,7 +82,6 @@ class LoginView(APIView):
     def post(self, request):
         userName = request.data.get('userName')
         userPassword = request.data.get('userPassword')
-        request.session['username'] = userName
         print("userPassword", userPassword)
         user = authenticate(username=userName, password=userPassword)
         print("USER", user)
@@ -101,8 +109,8 @@ class TaskListCreateAPIView(generics.ListCreateAPIView):
         taskDate = datetime.datetime.now()
         taskName = request.data.get('taskName')
         taskDescription = request.data.get('taskDescription')
-        loggedUser = request.session['username']
-        user_instance = CustomUser.objects.get(userName=loggedUser)
+        loggedUser = request.session['email']
+        user_instance = CustomUser.objects.get(userEmail=loggedUser)
 
         try:
             task = Task(user_id=user_instance, taskDate=taskDate, taskName=taskName, taskDescription=taskDescription)
@@ -118,10 +126,9 @@ class TaskRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
     # permission_classes = [IsAuthenticated]
 
-
     def delete(self, request, id):
         try:
-            task = Task.objects.get(id=id)
+            task = Task.objects.get(task_id=id)
             task.delete()
             return Response({'message': 'Task deleted successful'}, status=status.HTTP_200_OK)
         except Exception as e:
