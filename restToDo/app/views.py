@@ -18,30 +18,30 @@ import requests
 # admin
 # RARE0000
 
-class RegisterView(APIView):
-    def get(self, request):
-        # Rendering the HTML template for GET requests
-        return render(request, 'register.html')
-    def post(self, request):
+# class RegisterView(APIView):
+#     def get(self, request):
+#         # Rendering the HTML template for GET requests
+#         return render(request, 'register.html')
+#     def post(self, request):
 
-        userName = request.data.get('userName')
-        userEmail = request.data.get('userEmail')
-        userPassword = make_password(request.data.get('userPassword'))
+#         userName = request.data.get('userName')
+#         userEmail = request.data.get('userEmail')
+#         userPassword = make_password(request.data.get('userPassword'))
 
         # url = requests.get('').json()
 
-        if not userName or not userEmail or not userPassword:
-            return Response({'error': 'Please provide username, email, and password'}, status=status.HTTP_400_BAD_REQUEST)
+        # if not userName or not userEmail or not userPassword:
+        #     return Response({'error': 'Please provide username, email, and password'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if CustomUser.objects.filter(userName=userName).exists():
-            return Response({'error': 'Username is already taken'}, status=status.HTTP_400_BAD_REQUEST)
+        # if CustomUser.objects.filter(userName=userName).exists():
+        #     return Response({'error': 'Username is already taken'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if CustomUser.objects.filter(userEmail=userEmail).exists():
-            return Response({'error': 'Email is already registered'}, status=status.HTTP_400_BAD_REQUEST)
+        # if CustomUser.objects.filter(userEmail=userEmail).exists():
+        #     return Response({'error': 'Email is already registered'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = CustomUser.objects.create(userName=userName, userEmail=userEmail, userPassword=userPassword)
-        user.save()
-        return redirect('login')
+        # user = CustomUser.objects.create(userName=userName, userEmail=userEmail, userPassword=userPassword)
+        # user.save()
+        # return redirect('login')
 
         # serializer = CustomUserSerializer(data=request.data)
         # if serializer.is_valid():
@@ -53,56 +53,75 @@ class RegisterView(APIView):
         # return render(request, 'register.html') 
 
 
-# class RegisterView(APIView):
-#     def post(self, request):
-#         username = request.data.get('username')
-#         email = request.data.get('email')
-#         password = make_password(request.data.get('password'))
+class RegisterView(APIView):
+    # def post(self, request):
+    #     username = request.data.get('username')
+    #     email = request.data.get('email')
+    #     password = make_password(request.data.get('password'))
 
-#         if not username or not email or not password:
-#             return Response({'error': 'Please provide username, email, and password'}, status=status.HTTP_400_BAD_REQUEST)
+    #     if not username or not email or not password:
+    #         return Response({'error': 'Please provide username, email, and password'}, status=status.HTTP_400_BAD_REQUEST)
 
-#         if User.objects.filter(username=username).exists():
-#             return Response({'error': 'Username is already taken'}, status=status.HTTP_400_BAD_REQUEST)
+    #     if User.objects.filter(username=username).exists():
+    #         return Response({'error': 'Username is already taken'}, status=status.HTTP_400_BAD_REQUEST)
 
-#         if User.objects.filter(email=email).exists():
-#             return Response({'error': 'Email is already registered'}, status=status.HTTP_400_BAD_REQUEST)
+    #     if User.objects.filter(email=email).exists():
+    #         return Response({'error': 'Email is already registered'}, status=status.HTTP_400_BAD_REQUEST)
 
-#         user = User.objects.create(username=username, email=email, password=password)
-#         if user:
-#             return render(request, 'register.html')
-#             # return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response({'error': 'Failed to create user'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    #     user = User.objects.create(username=username, email=email, password=password)
+        def post(self, request):
+
+            userName = request.data.get('userName')
+            userEmail = request.data.get('userEmail')
+            userPassword = make_password(request.data.get('userPassword'))
+
+            url = requests.get('').json()
+
+            if not userName or not userEmail or not userPassword:
+                return Response({'error': 'Please provide username, email, and password'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if CustomUser.objects.filter(userName=userName).exists():
+                return Response({'error': 'Username is already taken'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if CustomUser.objects.filter(userEmail=userEmail).exists():
+                return Response({'error': 'Email is already registered'}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = CustomUser.objects.create(userName=userName, userEmail=userEmail, userPassword=userPassword)
+            # user.save()
+            if user:
+                # return render(request, 'register.html')
+                return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'Failed to create user'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class RestrictedView(APIView):
-#     permission_classes = [IsAuthenticated]
-#     def get(self, request, format=None):
-#         userName = request.data.get('userName')
-#         userPassword = request.data.get('userPassword')
+class RestrictedView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, format=None):
+        userName = request.data.get('userName')
+        userPassword = request.data.get('userPassword')
 
-#         user = authenticate(username=userName, password=userPassword)
-#         print("USER", user)
+        user = authenticate(username=userName, password=userPassword)
+        print("USER", user)
     
-#         return JsonResponse({"response": "You are Allowed here"})
+        return JsonResponse({"response": "You are Allowed here"})
 
 
 class LoginView(APIView):
-    # def post(self, request):
-    #     username = request.data.get('username')
-    #     password = request.data.get('password')
-    #     print("userPassword", password)
-    #     user = authenticate(username=username, password=password)
-    #     print("USER", user)
-    #     if user is not None:
-    #         refresh = RefreshToken.for_user(user)
-    #         return JsonResponse({
-    #             'refresh': str(refresh),
-    #             'access': str(refresh.access_token)
-    #         })
-    #     else:
-    #         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    def post(self, request):
+        userName = request.data.get('userName')
+        userPassword = request.data.get('userPassword')
+        print("userPassword", userPassword)
+        user = authenticate(username=userName, password=userPassword)
+        print("USER", user)
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            return JsonResponse({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+            })
+        else:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         # try:
         #     loginUser = CustomUser.objects.get(userEmail=userEmail)
@@ -115,34 +134,34 @@ class LoginView(APIView):
         # else:
         #     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
-    def get(self, request):
-        return render(request, 'login.html')
+    # def get(self, request):
+    #     return render(request, 'login.html')
     
-    def post(self, request):
+    # def post(self, request):
 
-        userEmail = request.data.get('userEmail')
-        userPassword = request.data.get('userPassword')
+    #     userEmail = request.data.get('userEmail')
+    #     userPassword = request.data.get('userPassword')
 
-        try:
-            loginUser = CustomUser.objects.get(userEmail=userEmail)
-        except Exception as e:
-            loginUser = None
+    #     try:
+    #         loginUser = CustomUser.objects.get(userEmail=userEmail)
+    #     except Exception as e:
+    #         loginUser = None
 
         # user = request.user
         # print("user", user)
 
         # print("check_password", check_password(userPassword, loginUser.userPassword))
-        if loginUser is not None and check_password(userPassword, loginUser.userPassword):
-            print("-------------------------------")
-            request.session['email'] = userEmail
-            return redirect('home')
-        elif userEmail=='admin@gamil.com':
-            request.session['email'] = userEmail
-            return redirect('adminDash')
-        else:
-            request.session['email'] = userEmail
-            return redirect('home')
-            return render(request,'login.html')
+        # if loginUser is not None and check_password(userPassword, loginUser.userPassword):
+        #     print("-------------------------------")
+        #     request.session['email'] = userEmail
+        #     return redirect('home')
+        # elif userEmail=='admin@gamil.com':
+        #     request.session['email'] = userEmail
+        #     return redirect('adminDash')
+        # else:
+        #     request.session['email'] = userEmail
+        #     return redirect('home')
+        #     return render(request,'login.html')
 
 
 
