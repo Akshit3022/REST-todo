@@ -47,10 +47,10 @@
                                     {% for task in tasks %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td>{{ task.date }}</td>
-                                        <td>{{ task.task }}</td>
-                                        <td>{{ task.description }}</td>
-                                        <td>{{ task.status }}</td>
+                                        <td>{{ task.taskDate }}</td>
+                                        <td>{{ task.taskName }}</td>
+                                        <td>{{ task.taskDescription }}</td>
+                                        <td>{{ status }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

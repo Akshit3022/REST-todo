@@ -43,13 +43,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for user in users %}
+                                    {% for user in allUser %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td>{{ user.name }}</td>
-                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.userName }}</td>
+                                        <td>{{ user.userEmail }}</td>
                                         <td>
-                                            <a href="{% url 'displayTask' user.id %}" class="btn btn-danger gradient-custom">Task Details</a>
+                                            <a href="{% url 'task-details' user.user_id %}" class="btn btn-danger gradient-custom">Task Details</a>
                                         </td>
                                     </tr>
                                     {% endfor %}

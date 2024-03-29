@@ -1,12 +1,1 @@
-<div>
-    <button class="btn btn-primary  btn-lg px-3 mb-0 gradient-custom" type="submit" style="margin-left: 300%;"><a href="{% url 'logout' %}" style="color: white;">Logout</a></button>
-</div>
-
-<!-- <td>
-                                            {% if task.completed %}
-                                            <span class="badge badge-success">Completed</span>
-                                            {% else %}
-                                            <a class="btn btn-danger" href="{% url 'completeTask' task.task_id %}">Complete</a>
-                                            {% endif %}
-                                            <a href="{% url 'delete' task.id %}" class="btn btn-danger">Delete</a>
-                                        </td> -->
+<a href="{% url 'displayTask' user.id %}" class="btn btn-danger gradient-custom">Task Details</a>

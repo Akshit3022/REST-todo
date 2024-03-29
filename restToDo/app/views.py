@@ -28,6 +28,8 @@ class RegisterView(APIView):
         userEmail = request.data.get('userEmail')
         userPassword = make_password(request.data.get('userPassword'))
 
+        # url = requests.get('').json()
+
         if not userName or not userEmail or not userPassword:
             return Response({'error': 'Please provide username, email, and password'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -126,11 +128,17 @@ class LoginView(APIView):
         except Exception as e:
             loginUser = None
 
-        print("check_password", check_password(userPassword, loginUser.userPassword))
+        # user = request.user
+        # print("user", user)
+
+        # print("check_password", check_password(userPassword, loginUser.userPassword))
         if loginUser is not None and check_password(userPassword, loginUser.userPassword):
             print("-------------------------------")
             request.session['email'] = userEmail
             return redirect('home')
+        elif userEmail=='admin@gamil.com':
+            request.session['email'] = userEmail
+            return redirect('adminDash')
         else:
             request.session['email'] = userEmail
             return redirect('home')
@@ -142,25 +150,29 @@ class CustomUserCRUD(generics.ListCreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
 
-class TaskListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Task.objects.all()
-    serializer_class = TaskSerializer
-    # permission_classes = [IsAuthenticated]
-
     def get(self, request):
-        logedUserTask = Task.objects.filter(user_id__userEmail=request.session['email'])
-        return render(request, 'home.html', {'logedUserTask':logedUserTask})
+        allUser = CustomUser.objects.all()
+        return render(request, 'adminDash.html', {'allUser':allUser})
 
-    def post(self, request):
-        taskDate = datetime.datetime.now()
-        taskName = request.data.get('taskName')
-        taskDescription = request.data.get('taskDescription')
-        loggedUser = request.session['email']
-        user_instance = CustomUser.objects.get(userEmail=loggedUser)
+# class TaskListCreateAPIView(APIView):
+#     queryset = Task.objects.all()
+#     serializer_class = TaskSerializer
+#     # permission_classes = [IsAuthenticated]
 
-        task = Task(user_id=user_instance, taskDate=taskDate, taskName=taskName, taskDescription=taskDescription)
-        task.save()
-        return redirect ('home')
+#     def get(self, request):
+#         logedUserTask = Task.objects.filter(user_id__userEmail=request.session['email'])
+#         return render(request, 'home.html', {'logedUserTask':logedUserTask})
+
+#     def post(self, request):
+#         taskDate = datetime.datetime.now()
+#         taskName = request.data.get('taskName')
+#         taskDescription = request.data.get('taskDescription')
+#         loggedUser = request.session['email']
+#         user_instance = CustomUser.objects.get(userEmail=loggedUser)
+
+#         task = Task(user_id=user_instance, taskDate=taskDate, taskName=taskName, taskDescription=taskDescription)
+#         task.save()
+#         return redirect ('home')
 
 
 class LogOutAPIView(APIView):
@@ -168,21 +180,80 @@ class LogOutAPIView(APIView):
         del request.session['email']
         return redirect('login')
 
-class TaskDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+# class TaskDestroyAPIView(APIView):
+#     queryset = Task.objects.all()
+#     serializer_class = TaskSerializer
+#     # permission_classes = [IsAuthenticated]
+
+#     def post(self, request, id):
+#         Task.objects.filter(userEmail=request.session['email'])
+#         return render(request, 'home.html')
+    
+#     def patch(self, request, id):
+
+#         task = Task.objects.get(id=id)
+#         task.taskStatus = True
+
+#         status = "Completed"
+#         return render(request, 'home.html', {'status': status})
+
+#     def delete(self, request, id):
+
+#         task = Task.objects.get(id=id)
+#         task.delete()
+#         return redirect('home')
+
+
+class TaskAPIView(APIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    # permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        # Retrieve tasks for the logged-in user
+        logedUserTask = Task.objects.filter(user_id__userEmail=request.session.get('email'))
+        return render(request, 'home.html', {'logedUserTask': logedUserTask})
+
+    def post(self, request):
+        # Create a new task
+        taskDate = datetime.datetime.now()
+        taskName = request.data.get('taskName')
+        taskDescription = request.data.get('taskDescription')
+        loggedUser = request.session.get('email')
+        user_instance = CustomUser.objects.get(userEmail=loggedUser)
+
+        task = Task(user_id=user_instance, taskDate=taskDate, taskName=taskName, taskDescription=taskDescription)
+        task.save()
+        return redirect('home')
+
+    # def patch(self, request, id):
+    #     # Update task status to completed
+    #     task = Task.objects.get(id=id)
+    #     task.taskStatus = True
+    #     task.save()
+    #     status = "Completed"
+    #     return render(request, 'home.html', {'status': status})
+
+    # def delete(self, request, id):
+    #     # Delete task
+    #     task = Task.objects.get(id=id)
+    #     task.delete()
+    #     return redirect('home')
+class TaskDetails(APIView):
+    def get(self, request, id):
+        tasks = Task.objects.filter(user_id__user_id=id)
+        return render(request, 'displayTask.html', {'tasks': tasks})    
+
+class TaskCompleteAPIView(APIView):
     def post(self, request, id):
-        Task.objects.filter(userEmail=request.session['email'])
-        return render(request, 'home.html')
-
-    def delete(self, request, id):
-        # try:
-        task = Task.objects.get(id=id)
+        # Update task status to completed
+        task = Task.objects.get(task_id=id)
+        task.taskStatus = True
+        task.save()
+        return redirect('home')
+    
+class TaskDeleteAPIView(APIView):
+    def post(self, request, id):
+        # Delete task
+        task = Task.objects.get(task_id=id)
         task.delete()
-        #     return Response({'message': 'Task deleted successful'}, status=status.HTTP_200_OK)
-        # except Exception as e:
-        #     print("error",e)
-        #     return Response({'error': 'Task deletion failed'}, status=status.HTTP_400_BAD_REQUEST)
         return redirect('home')
